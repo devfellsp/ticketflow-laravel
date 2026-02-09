@@ -13,13 +13,27 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void
-    {
-        // User::factory(10)->create();
+   public function run(): void
+{
+    // 1. Criar Usuário Admin
+    $admin = \App\Models\User::factory()->create([
+        'name' => 'Administrador',
+        'email' => 'admin@teste.com',
+        'password' => bcrypt('password'),
+        'role' => 'admin',
+    ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-    }
+    // 2. Criar Usuário Comum
+    $user = \App\Models\User::factory()->create([
+        'name' => 'Usuário Comum',
+        'email' => 'user@teste.com',
+        'password' => bcrypt('password'),
+        'role' => 'user',
+    ]);
+
+    // 3. Criar 10 chamados vinculados ao usuário comum
+    \App\Models\Ticket::factory(10)->create([
+        'solicitante_id' => $user->id,
+    ]);
+}
 }

@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('ticket_logs', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            // Referência ao Ticket (Equivalente à FK no Java/Hibernate)
+            $table->foreignId('ticket_id')->constrained()->onDelete('cascade'); 
+            
+            $table->string('de'); // Status anterior
+            $table->string('para'); // Novo status
+            
+            // Usuário que realizou a alteração
+            $table->foreignId('user_id')->constrained(); 
+            
+            $table->timestamps(); // Cria 'created_at' e 'updated_at'
         });
     }
 
