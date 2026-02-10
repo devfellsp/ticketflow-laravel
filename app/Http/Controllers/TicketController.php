@@ -2,44 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\CreateTicketDTO;
+use App\DTOs\UpdateTicketDTO;
+use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
+use App\Http\Resources\TicketResource;
+use App\Http\Resources\TicketCollection;
+use App\Services\TicketService;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
+/**
+ * Controller de Tickets (MAGRO - sem lógica de negócio)
+ * Apenas recebe requests e retorna responses
+ */
 class TicketController extends Controller
 {
+    public function __construct(
+        protected TicketService $service
+    ) {}
+
     /**
-     * Display a listing of tickets.
-     * Equivalente ao @GET em Quarkus
+     * Lista todos os tickets
      */
     public function index(Request $request)
     {
-        // Query builder (similar ao Panache no Quarkus)
-        $query = Ticket::with(['solicitante', 'responsavel']);
+        $filters = $request->only(['status', 'prioridade', 'solicitante_id', 'responsavel_id', 'search']);
+        $perPage = $request->get('per_page', 15);
         
-        // Filtros (como @QueryParam no Quarkus)
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
+        $tickets = $this->service->getAllTickets($filters, $perPage);
         
-        if ($request->has('prioridade')) {
-            $query->where('prioridade', $request->prioridade);
-        }
-        
-        $tickets = $query->paginate(15);
-        
-        // Se for requisição API, retorna JSON
         if ($request->expectsJson()) {
-            return response()->json($tickets);
+            return new TicketCollection($tickets);
         }
         
-        // Se for web, retorna view Blade
         return view('tickets.index', compact('tickets'));
     }
 
     /**
-     * Show the form for creating a new ticket.
-     * Apenas para web (Blade)
+     * Formulário de criação
      */
     public function create()
     {
@@ -47,103 +49,89 @@ class TicketController extends Controller
     }
 
     /**
-     * Store a newly created ticket.
-     * Equivalente ao @POST em Quarkus
+     * Cria novo ticket
      */
-    public function store(Request $request)
+    public function store(StoreTicketRequest $request)
     {
-        // Validação inline (depois vamos mover para FormRequest)
-        $validated = $request->validate([
-            'titulo' => 'required|string|min:5|max:120',
-            'descricao' => 'required|string|min:20',
-            'prioridade' => 'required|in:BAIXA,MEDIA,ALTA,CRITICA',
-        ]);
+        // Adiciona o ID do usuário autenticado
+        $data = $request->validated();
+        // Adiciona o ID do usuário autenticado (temporário até implementar auth)
+        $data['solicitante_id'] = 1; // TODO: Substituir por auth()->id() quando implementar autenticação // TODO: Remover fallback quando implementar auth
         
-        // Criar ticket (Eloquent = JPA no Java)
-        $ticket = new Ticket($validated);
-        $ticket->solicitante_id = Auth::id(); // Usuário autenticado
-        $ticket->status = 'ABERTO'; // Status inicial
-        $ticket->save();
+        $dto = CreateTicketDTO::fromArray($data);
+        $ticket = $this->service->createTicket($dto);
         
         if ($request->expectsJson()) {
-            return response()->json($ticket, 201);
+            return new TicketResource($ticket);
         }
         
-        return redirect()->route('tickets.index')
+        return redirect()->route('tickets.show', $ticket)
             ->with('success', 'Chamado criado com sucesso!');
     }
 
     /**
-     * Display the specified ticket.
-     * Equivalente ao @GET @Path("/{id}") no Quarkus
+     * Exibe ticket específico
      */
-    public function show(Ticket $ticket)
+    public function show(Request $request, Ticket $ticket)
     {
-        // Route Model Binding: Laravel já busca o ticket automaticamente!
-        // Carrega relacionamentos
-        $ticket->load(['solicitante', 'responsavel', 'logs.usuario']);
+        // Route Model Binding já busca o ticket
+        // Mas vamos recarregar com relacionamentos via service
+        $ticket = $this->service->getTicketById($ticket->id);
         
-        if (request()->expectsJson()) {
-            return response()->json($ticket);
+        if ($request->expectsJson()) {
+            return new TicketResource($ticket);
         }
         
         return view('tickets.show', compact('ticket'));
     }
 
     /**
-     * Show the form for editing the ticket.
+     * Formulário de edição
      */
     public function edit(Ticket $ticket)
     {
-        // Verifica autorização (depois implementamos Policy)
-        $this->authorize('update', $ticket);
+        // TODO: Implementar TicketPolicy
+        // $this->authorize('update', $ticket);
         
         return view('tickets.edit', compact('ticket'));
     }
 
     /**
-     * Update the ticket.
-     * Equivalente ao @PATCH no Quarkus
+     * Atualiza ticket
      */
-    public function update(Request $request, Ticket $ticket)
+    public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        $this->authorize('update', $ticket);
+        // TODO: Implementar TicketPolicy
+        // $this->authorize('update', $ticket);
         
-        $validated = $request->validate([
-            'titulo' => 'sometimes|string|min:5|max:120',
-            'descricao' => 'sometimes|string|min:20',
-            'status' => 'sometimes|in:ABERTO,EM_ANDAMENTO,RESOLVIDO,FECHADO',
-            'prioridade' => 'sometimes|in:BAIXA,MEDIA,ALTA,CRITICA',
-            'responsavel_id' => 'nullable|exists:users,id',
-        ]);
-        
-        // Observer vai detectar mudança de status automaticamente
-        $ticket->update($validated);
+        $dto = UpdateTicketDTO::fromArray($request->validated());
+        $updatedTicket = $this->service->updateTicket($ticket->id, $dto);
         
         if ($request->expectsJson()) {
-            return response()->json($ticket);
+            return new TicketResource($updatedTicket);
         }
         
-        return redirect()->route('tickets.show', $ticket)
-            ->with('success', 'Chamado atualizado!');
+        return redirect()->route('tickets.show', $updatedTicket)
+            ->with('success', 'Chamado atualizado com sucesso!');
     }
 
     /**
-     * Remove the ticket (soft delete).
-     * Equivalente ao @DELETE no Quarkus
+     * Deleta ticket (soft delete)
      */
-    public function destroy(Ticket $ticket)
+    public function destroy(Request $request, Ticket $ticket)
     {
-        // Policy vai verificar se é admin ou dono
-        $this->authorize('delete', $ticket);
+        // TODO: Implementar TicketPolicy
+        // $this->authorize('delete', $ticket);
         
-        $ticket->delete(); // Soft delete
+        $this->service->deleteTicket($ticket->id);
         
-        if (request()->expectsJson()) {
-            return response()->json(['message' => 'Chamado excluído'], 200);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Chamado excluído com sucesso'
+            ], 200);
         }
         
         return redirect()->route('tickets.index')
-            ->with('success', 'Chamado excluído!');
+            ->with('success', 'Chamado excluído com sucesso!');
     }
 }

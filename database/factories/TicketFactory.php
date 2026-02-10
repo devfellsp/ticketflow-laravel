@@ -23,5 +23,5 @@ class TicketFactory extends Factory
         'prioridade' => fake()->randomElement(['BAIXA', 'MEDIA', 'ALTA']),
         'solicitante_id' => \App\Models\User::factory(), // Cria um user se não for passado um
     ];
-}
+}       
 }
