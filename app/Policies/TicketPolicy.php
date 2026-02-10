@@ -4,63 +4,72 @@ namespace App\Policies;
 
 use App\Models\Ticket;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
+/**
+ * Policy de Autorização para Tickets
+ */
 class TicketPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Ver qualquer ticket (apenas autenticados)
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true; // Qualquer usuário autenticado pode listar
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Ver um ticket específico
      */
     public function view(User $user, Ticket $ticket): bool
     {
-        return false;
+        return true; // Qualquer usuário autenticado pode ver
     }
 
     /**
-     * Determine whether the user can create models.
+     * Criar ticket (qualquer usuário autenticado)
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Atualizar ticket
+     * Apenas: solicitante, responsável ou admin
      */
     public function update(User $user, Ticket $ticket): bool
     {
-        return false;
+        return $user->role === 'admin'
+            || $ticket->solicitante_id === $user->id
+            || $ticket->responsavel_id === $user->id;
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Excluir ticket
+     * Apenas: solicitante ou admin (REQUISITO OBRIGATÓRIO)
      */
     public function delete(User $user, Ticket $ticket): bool
     {
-        return false;
+        return $user->role === 'admin'
+            || $ticket->solicitante_id === $user->id;
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Restaurar ticket (soft delete)
+     * Apenas admin
      */
     public function restore(User $user, Ticket $ticket): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Forçar exclusão permanente
+     * Apenas admin
      */
     public function forceDelete(User $user, Ticket $ticket): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 }

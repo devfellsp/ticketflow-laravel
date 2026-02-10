@@ -11,7 +11,6 @@ use App\Http\Resources\TicketCollection;
 use App\Services\TicketService;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Controller de Tickets (MAGRO - sem lógica de negócio)
@@ -53,11 +52,9 @@ class TicketController extends Controller
      */
     public function store(StoreTicketRequest $request)
     {
-        // Adiciona o ID do usuário autenticado
         $data = $request->validated();
-        // Adiciona o ID do usuário autenticado (temporário até implementar auth)
-        $data['solicitante_id'] = 1; // TODO: Substituir por auth()->id() quando implementar autenticação // TODO: Remover fallback quando implementar auth
-        
+        $data['solicitante_id'] = $request->user()->id;
+
         $dto = CreateTicketDTO::fromArray($data);
         $ticket = $this->service->createTicket($dto);
         
@@ -74,8 +71,6 @@ class TicketController extends Controller
      */
     public function show(Request $request, Ticket $ticket)
     {
-        // Route Model Binding já busca o ticket
-        // Mas vamos recarregar com relacionamentos via service
         $ticket = $this->service->getTicketById($ticket->id);
         
         if ($request->expectsJson()) {
@@ -90,8 +85,7 @@ class TicketController extends Controller
      */
     public function edit(Ticket $ticket)
     {
-        // TODO: Implementar TicketPolicy
-        // $this->authorize('update', $ticket);
+        $this->authorize('update', $ticket);
         
         return view('tickets.edit', compact('ticket'));
     }
@@ -101,8 +95,8 @@ class TicketController extends Controller
      */
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        // TODO: Implementar TicketPolicy
-        // $this->authorize('update', $ticket);
+        // Autorização via Policy
+        $this->authorize('update', $ticket);
         
         $dto = UpdateTicketDTO::fromArray($request->validated());
         $updatedTicket = $this->service->updateTicket($ticket->id, $dto);
@@ -116,22 +110,27 @@ class TicketController extends Controller
     }
 
     /**
-     * Deleta ticket (soft delete)
+     * Remove o ticket (soft delete)
+     * Apenas: solicitante ou admin (POLICY)
      */
-    public function destroy(Request $request, Ticket $ticket)
-    {
-        // TODO: Implementar TicketPolicy
-        // $this->authorize('delete', $ticket);
-        
-        $this->service->deleteTicket($ticket->id);
-        
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Chamado excluído com sucesso'
-            ], 200);
-        }
-        
-        return redirect()->route('tickets.index')
-            ->with('success', 'Chamado excluído com sucesso!');
+    /**
+ * Remove o ticket (soft delete)
+ * Apenas: solicitante ou admin (POLICY)
+ */
+public function destroy(Request $request, Ticket $ticket)
+{
+    // Autorização via Policy
+    $this->authorize('delete', $ticket);
+
+    $this->service->deleteTicket($ticket->id);  // ← CORREÇÃO AQUI
+
+    if ($request->wantsJson()) {
+        return response()->json([
+            'message' => 'Ticket excluído com sucesso',
+        ], 200);
     }
+
+    return redirect()->route('tickets.index')
+        ->with('success', 'Ticket excluído com sucesso!');
+}
 }
