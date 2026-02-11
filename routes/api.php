@@ -24,6 +24,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tickets (CRUD completo)
     Route::apiResource('tickets', TicketController::class);
     
-    // Endpoint específico para mudança de status (será criado depois)
-    // Route::patch('/tickets/{ticket}/status', [TicketController::class, 'updateStatus']);
+    // Ações especiais em tickets
+    Route::patch('tickets/{ticket}/status', [TicketController::class, 'changeStatus']);
+    Route::patch('tickets/{ticket}/assign', [TicketController::class, 'assignResponsible']);
+    
+    // Logs de auditoria de um ticket
+    Route::get('tickets/{ticket}/logs', [TicketController::class, 'logs']);
+    
+    // Dashboard
+    Route::get('dashboard/tickets', [TicketController::class, 'dashboard']);
 });

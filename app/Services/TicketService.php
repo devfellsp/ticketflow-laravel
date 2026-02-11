@@ -8,7 +8,6 @@ use App\Enums\TicketStatus;
 use App\Enums\TicketPriority;
 use App\Models\Ticket;
 use App\Repositories\Contracts\TicketRepositoryInterface;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -26,11 +25,7 @@ class TicketService
     /**
      * Lista todos os tickets com filtros
      */
-    public function getAllTickets(array $filters = [], int $perPage = 15): LengthAwarePaginator
-    {
-        return $this->repository->all($filters, $perPage);
-    }
-
+    
     /**
      * Busca ticket por ID
      */
@@ -209,4 +204,13 @@ class TicketService
     {
         return $this->repository->countByStatus();
     }
+    
+/**
+ * Lista todos os tickets com filtros
+ */
+public function listTickets(array $filters = []): Collection
+{
+    return $this->repository->all($filters);
+}
+
 }

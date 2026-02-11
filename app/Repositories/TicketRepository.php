@@ -6,7 +6,6 @@ use App\Models\Ticket;
 use App\Enums\TicketStatus;
 use App\Enums\TicketPriority;
 use App\Repositories\Contracts\TicketRepositoryInterface;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class TicketRepository implements TicketRepositoryInterface
@@ -15,35 +14,33 @@ class TicketRepository implements TicketRepositoryInterface
         protected Ticket $model
     ) {}
 
-    public function all(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    /**
+     * Lista todos os tickets com filtros opcionais
+     */
+    public function all(array $filters = []): Collection
     {
         $query = $this->model->with(['solicitante', 'responsavel']);
-
-        // Filtros opcionais
-        if (isset($filters['status'])) {
+        
+        // Filtro por status
+        if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
-
-        if (isset($filters['prioridade'])) {
+        
+        // Filtro por prioridade
+        if (!empty($filters['prioridade'])) {
             $query->where('prioridade', $filters['prioridade']);
         }
-
-        if (isset($filters['solicitante_id'])) {
-            $query->where('solicitante_id', $filters['solicitante_id']);
-        }
-
-        if (isset($filters['responsavel_id'])) {
-            $query->where('responsavel_id', $filters['responsavel_id']);
-        }
-
-        if (isset($filters['search'])) {
-            $query->where(function($q) use ($filters) {
-                $q->where('titulo', 'like', "%{$filters['search']}%")
-                  ->orWhere('descricao', 'like', "%{$filters['search']}%");
+        
+        // Busca por texto (titulo ou descricao)
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function($q) use ($search) {
+                $q->where('titulo', 'LIKE', "%{$search}%")
+                  ->orWhere('descricao', 'LIKE', "%{$search}%");
             });
         }
-
-        return $query->latest()->paginate($perPage);
+        
+        return $query->latest()->get();
     }
 
     public function findById(int $id): ?Ticket

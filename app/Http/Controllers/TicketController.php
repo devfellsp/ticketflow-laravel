@@ -22,22 +22,24 @@ class TicketController extends Controller
         protected TicketService $service
     ) {}
 
+
+
     /**
      * Lista todos os tickets
      */
     public function index(Request $request)
-    {
-        $filters = $request->only(['status', 'prioridade', 'solicitante_id', 'responsavel_id', 'search']);
-        $perPage = $request->get('per_page', 15);
-        
-        $tickets = $this->service->getAllTickets($filters, $perPage);
-        
-        if ($request->expectsJson()) {
-            return new TicketCollection($tickets);
-        }
-        
-        return view('tickets.index', compact('tickets'));
+{
+    $filters = $request->only(['status', 'prioridade', 'search']);
+    
+    $tickets = $this->service->listTickets($filters);  // ← MUDANÇA AQUI
+    
+    if ($request->expectsJson()) {
+        return TicketResource::collection($tickets);  // ← Collection, não TicketCollection
     }
+    
+    return view('tickets.index', compact('tickets'));
+}
+
 
     /**
      * Formulário de criação
@@ -132,5 +134,82 @@ public function destroy(Request $request, Ticket $ticket)
 
     return redirect()->route('tickets.index')
         ->with('success', 'Ticket excluído com sucesso!');
+}
+/**
+ * Lista logs de auditoria de um ticket
+ */
+public function logs(Ticket $ticket)
+{
+    $this->authorize('view', $ticket);
+    
+    $logs = $ticket->logs()
+        ->with('user')
+        ->orderBy('created_at', 'desc')
+        ->get();
+    
+    return response()->json([
+        'data' => $logs->map(function($log) {
+            return [
+                'id' => $log->id,
+                'action' => $log->action,
+                'description' => $log->description,
+                'user' => $log->user ? [
+                    'id' => $log->user->id,
+                    'name' => $log->user->name,
+                ] : null,
+                'before' => $log->before,
+                'after' => $log->after,
+                'created_at' => $log->created_at->toIso8601String(),
+            ];
+        })
+    ]);
+}
+/**
+ * Muda status do ticket
+ * PATCH /api/tickets/{id}/status
+ */
+public function changeStatus(Request $request, Ticket $ticket)
+{
+    $request->validate([
+        'status' => ['required', 'string', 'in:ABERTO,EM_ANDAMENTO,RESOLVIDO,FECHADO']
+    ]);
+    
+    $this->authorize('update', $ticket);
+    
+    $status = \App\Enums\TicketStatus::from($request->status);
+    $updatedTicket = $this->service->changeStatus($ticket->id, $status);
+    
+    return new TicketResource($updatedTicket);
+}
+
+/**
+ * Atribui responsável ao ticket
+ * PATCH /api/tickets/{id}/assign
+ */
+public function assignResponsible(Request $request, Ticket $ticket)
+{
+    $request->validate([
+        'responsavel_id' => ['required', 'integer', 'exists:users,id']
+    ]);
+    
+    $this->authorize('update', $ticket);
+    
+    $updatedTicket = $this->service->assignResponsible($ticket->id, $request->responsavel_id);
+    
+    return new TicketResource($updatedTicket);
+}
+
+/**
+ * Dashboard - contagens e estatísticas
+ * GET /api/dashboard/tickets
+ */
+public function dashboard()
+{
+    $counts = $this->service->getStatusCounts();
+    
+    return response()->json([
+        'status_counts' => $counts,
+        'total' => array_sum($counts),
+    ]);
 }
 }

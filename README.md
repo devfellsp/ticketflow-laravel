@@ -1,59 +1,354 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎫 Ticket Flow - Sistema de Gerenciamento de Tickets
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema RESTful API para gerenciamento de tickets/chamados desenvolvido em Laravel.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 **Tecnologias Utilizadas**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **PHP 8.3** - Linguagem
+- **Laravel 11** - Framework
+- **MySQL** - Banco de dados
+- **Sanctum** - Autenticação API
+- **Enums** - Status e Prioridades tipados
+- **Soft Deletes** - Exclusão lógica
+- **Auditoria** - Log de todas alterações
+- **Resources** - Transformação de dados
+- **Policies** - Autorização
+- **Service Layer** - Lógica de negócio
+- **Scramble** - Documentação automática (Swagger)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📋 **Funcionalidades Implementadas**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### ✅ **Autenticação**
+- [x] Registro de usuários
+- [x] Login (gera token Sanctum)
+- [x] Logout
+- [x] Perfil do usuário (`/api/me`)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### ✅ **CRUD de Tickets**
+- [x] Criar ticket
+- [x] Listar tickets (com paginação)
+- [x] Visualizar detalhes
+- [x] Atualizar ticket
+- [x] Deletar ticket (soft delete)
 
-## Laravel Sponsors
+### ✅ **Filtros e Buscas**
+- [x] Filtro por **status** (ABERTO, EM_ANDAMENTO, RESOLVIDO, FECHADO)
+- [x] Filtro por **prioridade** (BAIXA, MEDIA, ALTA, CRITICA)
+- [x] Busca por **texto** (título e descrição)
+- [x] Filtros combinados
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### ✅ **Ações Especiais**
+- [x] Mudar status do ticket
+- [x] Atribuir/desatribuir responsável
+- [x] Ver histórico de alterações (auditoria)
 
-### Premium Partners
+### ✅ **Dashboard**
+- [x] Contagem de tickets por status
+- [x] Total de tickets
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### ✅ **Auditoria Completa**
+- [x] Log de criação
+- [x] Log de atualizações (campo a campo)
+- [x] Log de mudança de status
+- [x] Log de atribuição de responsável
+- [x] Rastreamento de usuário e data/hora
 
-## Contributing
+### ✅ **Autorização**
+- [x] Usuário só vê tickets que criou ou foi atribuído
+- [x] Admin vê todos os tickets
+- [x] Políticas de acesso (view, update, delete)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### ✅ **Documentação**
+- [x] Swagger/OpenAPI automático (Scramble)
+- [x] Acesso via `/docs/api`
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🛠️ **Instalação e Configuração**
 
-## Security Vulnerabilities
+### **1. Clonar repositório (ou descompactar)**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+cd ~/ticket-flow
+```
 
-## License
+### **2. Instalar dependências**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer install
+```
+
+### **3. Configurar ambiente**
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+### **4. Configurar banco de dados**
+
+Editar `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ticket_flow
+DB_USERNAME=root
+DB_PASSWORD=sua_senha
+```
+
+### **5. Criar banco de dados**
+
+```bash
+mysql -u root -p
+CREATE DATABASE ticket_flow;
+exit;
+```
+
+### **6. Executar migrations e seeders**
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+### **7. Iniciar servidor**
+
+```bash
+php artisan serve
+```
+
+Servidor rodando em: `http://localhost:8000`
+
+---
+
+## 📖 **Documentação da API**
+
+### **Swagger (Interface Interativa)**
+
+Acesse: **http://localhost:8000/docs/api**
+
+---
+
+## 🧪 **Executar Testes Automatizados**
+
+```bash
+# Script completo de testes
+chmod +x test_complete_api.sh
+./test_complete_api.sh
+```
+
+---
+
+## 🔑 **Usuários de Teste**
+
+| Email | Senha | Role |
+|-------|-------|------|
+| `admin@teste.com` | `password` | ADMIN |
+| `user@teste.com` | `password` | USER |
+| `tecnico@teste.com` | `password` | USER |
+
+---
+
+## 📡 **Endpoints da API**
+
+### **🔐 Autenticação**
+
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| POST | `/api/register` | Registrar usuário | Não |
+| POST | `/api/login` | Login | Não |
+| POST | `/api/logout` | Logout | Sim |
+| GET | `/api/me` | Dados do usuário | Sim |
+
+### **🎫 Tickets (CRUD)**
+
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/api/tickets` | Listar tickets | Sim |
+| POST | `/api/tickets` | Criar ticket | Sim |
+| GET | `/api/tickets/{id}` | Ver detalhes | Sim |
+| PUT/PATCH | `/api/tickets/{id}` | Atualizar | Sim |
+| DELETE | `/api/tickets/{id}` | Deletar | Sim |
+
+**Filtros disponíveis em `GET /api/tickets`:**
+- `?status=ABERTO` - Filtro por status
+- `?prioridade=ALTA` - Filtro por prioridade
+- `?search=texto` - Busca em título/descrição
+- Combinações: `?status=ABERTO&prioridade=ALTA`
+
+### **🔧 Ações Especiais**
+
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| PATCH | `/api/tickets/{id}/status` | Mudar status | Sim |
+| PATCH | `/api/tickets/{id}/assign` | Atribuir responsável | Sim |
+| GET | `/api/tickets/{id}/logs` | Ver auditoria | Sim |
+
+### **📊 Dashboard**
+
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| GET | `/api/dashboard/tickets` | Contagens por status | Sim |
+
+---
+
+## 📝 **Exemplos de Uso**
+
+### **1. Login**
+
+```bash
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@teste.com",
+    "password": "password"
+  }'
+```
+
+**Resposta:**
+```json
+{
+  "user": {
+    "id": 2,
+    "name": "Usuário Comum",
+    "email": "user@teste.com"
+  },
+  "token": "1|abc123..."
+}
+```
+
+### **2. Listar Tickets (com filtro)**
+
+```bash
+curl http://localhost:8000/api/tickets?status=ABERTO \
+  -H "Authorization: Bearer SEU_TOKEN"
+```
+
+### **3. Criar Ticket**
+
+```bash
+curl -X POST http://localhost:8000/api/tickets \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "titulo": "Problema no sistema",
+    "descricao": "Não consigo fazer login",
+    "prioridade": "ALTA"
+  }'
+```
+
+### **4. Mudar Status**
+
+```bash
+curl -X PATCH http://localhost:8000/api/tickets/1/status \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "EM_ANDAMENTO"}'
+```
+
+### **5. Atribuir Responsável**
+
+```bash
+curl -X PATCH http://localhost:8000/api/tickets/1/assign \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"responsavel_id": 1}'
+```
+
+### **6. Ver Logs de Auditoria**
+
+```bash
+curl http://localhost:8000/api/tickets/1/logs \
+  -H "Authorization: Bearer SEU_TOKEN"
+```
+
+### **7. Dashboard**
+
+```bash
+curl http://localhost:8000/api/dashboard/tickets \
+  -H "Authorization: Bearer SEU_TOKEN"
+```
+
+**Resposta:**
+```json
+{
+  "status_counts": {
+    "ABERTO": 5,
+    "EM_ANDAMENTO": 3,
+    "RESOLVIDO": 2,
+    "FECHADO": 1
+  },
+  "total": 11
+}
+```
+
+---
+
+## 🗂️ **Estrutura do Projeto**
+
+```
+ticket-flow/
+├── app/
+│   ├── Enums/
+│   │   ├── TicketStatus.php      # Enum de status
+│   │   └── TicketPriority.php    # Enum de prioridade
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuthController.php
+│   │   │   └── TicketController.php
+│   │   ├── Requests/
+│   │   │   ├── StoreTicketRequest.php
+│   │   │   └── UpdateTicketRequest.php
+│   │   └── Resources/
+│   │       └── TicketResource.php
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── Ticket.php
+│   │   └── AuditLog.php
+│   ├── Policies/
+│   │   └── TicketPolicy.php
+│   └── Services/
+│       └── TicketService.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+│       └── DatabaseSeeder.php
+├── routes/
+│   └── api.php
+├── tests/
+├── test_complete_api.sh           # Script de testes
+└── README.md
+```
+
+---
+
+## 🎯 **Diferenciais Implementados**
+
+✅ **Arquitetura em camadas** (Controller → Service → Model)  
+✅ **Enums nativos do PHP** para status e prioridades  
+✅ **Soft Deletes** - dados nunca são perdidos  
+✅ **Auditoria completa** - rastreio de todas as mudanças  
+✅ **Policies** - autorização granular  
+✅ **Resources** - transformação de dados padronizada  
+✅ **Validações** - FormRequests separados  
+✅ **Documentação automática** - Swagger via Scramble  
+✅ **Filtros combinados** - múltiplos filtros simultaneamente  
+✅ **Timestamps automáticos** - `created_at`, `updated_at`, `resolved_at`  
+✅ **Relacionamentos eloquent** - usuários e tickets  
+
+---
+
+## 🧑‍💻 **Desenvolvido por**
+
+Filipe M. Henrique
+
+---
+
+## 📄 **Licença**
+
+MIT License
