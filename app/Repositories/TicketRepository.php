@@ -7,6 +7,7 @@ use App\Enums\TicketStatus;
 use App\Enums\TicketPriority;
 use App\Repositories\Contracts\TicketRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class TicketRepository implements TicketRepositoryInterface
 {
@@ -15,9 +16,9 @@ class TicketRepository implements TicketRepositoryInterface
     ) {}
 
     /**
-     * Lista todos os tickets com filtros opcionais
+     * Lista todos os tickets com filtros (paginado) - REQUERIDO PELA INTERFACE
      */
-    public function all(array $filters = []): Collection
+    public function list(array $filters = [])
     {
         $query = $this->model->with(['solicitante', 'responsavel']);
         
@@ -39,37 +40,84 @@ class TicketRepository implements TicketRepositoryInterface
                   ->orWhere('descricao', 'LIKE', "%{$search}%");
             });
         }
+
+        // Usuário comum vê apenas seus tickets
+        if (Auth::check() && Auth::user()->role !== 'ADMIN') {
+            $query->where(function ($q) {
+                $q->where('solicitante_id', Auth::id())
+                  ->orWhere('responsavel_id', Auth::id());
+            });
+        }
         
-        return $query->latest()->get();
+        return $query->latest()->paginate(15);
     }
 
-    public function findById(int $id): ?Ticket
+    /**
+     * Busca ticket por ID - REQUERIDO PELA INTERFACE
+     */
+    public function find(int $id): ?Ticket
     {
         return $this->model
             ->with(['solicitante', 'responsavel'])
             ->find($id);
     }
 
+    /**
+     * Cria novo ticket - REQUERIDO PELA INTERFACE
+     */
     public function create(array $data): Ticket
     {
         return $this->model->create($data);
     }
 
+    /**
+     * Atualiza ticket - REQUERIDO PELA INTERFACE
+     */
     public function update(int $id, array $data): Ticket
     {
         $ticket = $this->model->findOrFail($id);
         $ticket->update($data);
         
-        // Retorna o ticket atualizado com relacionamentos
         return $ticket->fresh(['solicitante', 'responsavel']);
     }
 
+    /**
+     * Deleta ticket (soft delete) - REQUERIDO PELA INTERFACE
+     */
     public function delete(int $id): bool
     {
         $ticket = $this->model->findOrFail($id);
-        
-        // Soft delete
         return $ticket->delete();
+    }
+
+    // ========== MÉTODOS EXTRAS (não obrigatórios pela interface) ==========
+
+    public function all(array $filters = []): Collection
+    {
+        $query = $this->model->with(['solicitante', 'responsavel']);
+        
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+        
+        if (!empty($filters['prioridade'])) {
+            $query->where('prioridade', $filters['prioridade']);
+        }
+        
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function($q) use ($search) {
+                $q->where('titulo', 'LIKE', "%{$search}%")
+                  ->orWhere('descricao', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        return $query->latest()->get();
+    }
+
+    public function findById(int $id): ?Ticket
+    {
+        return $this->find($id);
     }
 
     public function findByStatus(TicketStatus $status): Collection

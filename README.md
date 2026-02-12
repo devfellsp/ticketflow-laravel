@@ -1,354 +1,663 @@
-# 🎫 Ticket Flow - Sistema de Gerenciamento de Tickets
+# 🎫 Ticket Flow - Sistema de Gestão de Chamados
 
-Sistema RESTful API para gerenciamento de tickets/chamados desenvolvido em Laravel.
+Sistema de gestão de chamados (tickets) desenvolvido em Laravel com autenticação, autorização e auditoria completa.
 
----
+## 📋 Índice
 
-## 🚀 **Tecnologias Utilizadas**
-
-- **PHP 8.3** - Linguagem
-- **Laravel 11** - Framework
-- **MySQL** - Banco de dados
-- **Sanctum** - Autenticação API
-- **Enums** - Status e Prioridades tipados
-- **Soft Deletes** - Exclusão lógica
-- **Auditoria** - Log de todas alterações
-- **Resources** - Transformação de dados
-- **Policies** - Autorização
-- **Service Layer** - Lógica de negócio
-- **Scramble** - Documentação automática (Swagger)
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Tecnologias](#tecnologias)
+- [Requisitos](#requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Execução](#execução)
+- [Testes](#testes)
+- [Credenciais](#credenciais)
+- [API - Documentação](#api---documentação)
+- [Funcionalidades](#funcionalidades)
+- [Arquitetura](#arquitetura)
 
 ---
 
-## 📋 **Funcionalidades Implementadas**
+## 🎯 Sobre o Projeto
 
-### ✅ **Autenticação**
-- [x] Registro de usuários
-- [x] Login (gera token Sanctum)
-- [x] Logout
-- [x] Perfil do usuário (`/api/me`)
+Aplicação completa de gerenciamento de chamados internos com:
 
-### ✅ **CRUD de Tickets**
-- [x] Criar ticket
-- [x] Listar tickets (com paginação)
-- [x] Visualizar detalhes
-- [x] Atualizar ticket
-- [x] Deletar ticket (soft delete)
-
-### ✅ **Filtros e Buscas**
-- [x] Filtro por **status** (ABERTO, EM_ANDAMENTO, RESOLVIDO, FECHADO)
-- [x] Filtro por **prioridade** (BAIXA, MEDIA, ALTA, CRITICA)
-- [x] Busca por **texto** (título e descrição)
-- [x] Filtros combinados
-
-### ✅ **Ações Especiais**
-- [x] Mudar status do ticket
-- [x] Atribuir/desatribuir responsável
-- [x] Ver histórico de alterações (auditoria)
-
-### ✅ **Dashboard**
-- [x] Contagem de tickets por status
-- [x] Total de tickets
-
-### ✅ **Auditoria Completa**
-- [x] Log de criação
-- [x] Log de atualizações (campo a campo)
-- [x] Log de mudança de status
-- [x] Log de atribuição de responsável
-- [x] Rastreamento de usuário e data/hora
-
-### ✅ **Autorização**
-- [x] Usuário só vê tickets que criou ou foi atribuído
-- [x] Admin vê todos os tickets
-- [x] Políticas de acesso (view, update, delete)
-
-### ✅ **Documentação**
-- [x] Swagger/OpenAPI automático (Scramble)
-- [x] Acesso via `/docs/api`
+- ✅ Autenticação via Laravel Breeze + Sanctum
+- ✅ CRUD completo de tickets
+- ✅ Sistema de autorização com Policies
+- ✅ Auditoria de mudanças de status
+- ✅ Filtros avançados (status, prioridade, busca)
+- ✅ API REST protegida
+- ✅ Soft Delete
+- ✅ Validações server-side
+- ✅ Testes automatizados (Feature + Unit)
 
 ---
 
-## 🛠️ **Instalação e Configuração**
+## 🛠️ Tecnologias
 
-### **1. Clonar repositório (ou descompactar)**
+- **Laravel 11**
+- **PHP 8.2+**
+- **SQLite** (banco de dados)
+- **Sanctum** (autenticação API)
+- **Breeze** (autenticação web)
+- **Pest** (testes)
+
+---
+
+## ⚙️ Requisitos
+
+- PHP >= 8.2
+- Composer
+- Node.js >= 18
+- NPM ou Yarn
+
+---
+
+## 🚀 Instalação
+
+### 1️⃣ Clonar o repositório
 
 ```bash
-cd ~/ticket-flow
+git clone <seu-repositorio>
+cd ticket-flow
 ```
 
-### **2. Instalar dependências**
+### 2️⃣ Instalar dependências
 
 ```bash
 composer install
+npm install
 ```
 
-### **3. Configurar ambiente**
+### 3️⃣ Criar arquivo .env
 
 ```bash
 cp .env.example .env
+```
+
+### 4️⃣ Gerar chave da aplicação
+
+```bash
 php artisan key:generate
 ```
 
-### **4. Configurar banco de dados**
-
-Editar `.env`:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=ticket_flow
-DB_USERNAME=root
-DB_PASSWORD=sua_senha
-```
-
-### **5. Criar banco de dados**
+### 5️⃣ Criar banco de dados SQLite
 
 ```bash
-mysql -u root -p
-CREATE DATABASE ticket_flow;
-exit;
+touch database/database.sqlite
 ```
 
-### **6. Executar migrations e seeders**
+### 6️⃣ Rodar migrations e seeders
 
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-### **7. Iniciar servidor**
+### 7️⃣ Compilar assets (opcional)
+
+```bash
+npm run dev
+```
+
+---
+
+## ▶️ Execução
+
+### Servidor de desenvolvimento
 
 ```bash
 php artisan serve
 ```
 
-Servidor rodando em: `http://localhost:8000`
+Acesse: **http://localhost:8000**
 
 ---
 
-## 📖 **Documentação da API**
+## 🧪 Testes
 
-### **Swagger (Interface Interativa)**
-
-Acesse: **http://localhost:8000/docs/api**
-
----
-
-## 🧪 **Executar Testes Automatizados**
+### Rodar todos os testes
 
 ```bash
-# Script completo de testes
-chmod +x test_complete_api.sh
-./test_complete_api.sh
+php artisan test
+```
+
+### Rodar testes específicos
+
+```bash
+php artisan test --filter TicketTest
+php artisan test --filter TicketValidationTest
+```
+
+### Cobertura de testes
+
+```bash
+php artisan test --coverage
 ```
 
 ---
 
-## 🔑 **Usuários de Teste**
+## 🔑 Credenciais
 
-| Email | Senha | Role |
-|-------|-------|------|
-| `admin@teste.com` | `password` | ADMIN |
-| `user@teste.com` | `password` | USER |
-| `tecnico@teste.com` | `password` | USER |
+### Usuários criados pelo Seeder:
 
----
-
-## 📡 **Endpoints da API**
-
-### **🔐 Autenticação**
-
-| Método | Endpoint | Descrição | Auth |
-|--------|----------|-----------|------|
-| POST | `/api/register` | Registrar usuário | Não |
-| POST | `/api/login` | Login | Não |
-| POST | `/api/logout` | Logout | Sim |
-| GET | `/api/me` | Dados do usuário | Sim |
-
-### **🎫 Tickets (CRUD)**
-
-| Método | Endpoint | Descrição | Auth |
-|--------|----------|-----------|------|
-| GET | `/api/tickets` | Listar tickets | Sim |
-| POST | `/api/tickets` | Criar ticket | Sim |
-| GET | `/api/tickets/{id}` | Ver detalhes | Sim |
-| PUT/PATCH | `/api/tickets/{id}` | Atualizar | Sim |
-| DELETE | `/api/tickets/{id}` | Deletar | Sim |
-
-**Filtros disponíveis em `GET /api/tickets`:**
-- `?status=ABERTO` - Filtro por status
-- `?prioridade=ALTA` - Filtro por prioridade
-- `?search=texto` - Busca em título/descrição
-- Combinações: `?status=ABERTO&prioridade=ALTA`
-
-### **🔧 Ações Especiais**
-
-| Método | Endpoint | Descrição | Auth |
-|--------|----------|-----------|------|
-| PATCH | `/api/tickets/{id}/status` | Mudar status | Sim |
-| PATCH | `/api/tickets/{id}/assign` | Atribuir responsável | Sim |
-| GET | `/api/tickets/{id}/logs` | Ver auditoria | Sim |
-
-### **📊 Dashboard**
-
-| Método | Endpoint | Descrição | Auth |
-|--------|----------|-----------|------|
-| GET | `/api/dashboard/tickets` | Contagens por status | Sim |
+| Email | Senha | Role | Descrição |
+|-------|-------|------|-----------|
+| `admin@teste.com` | `password` | ADMIN | Administrador (pode deletar qualquer ticket) |
+| `user@teste.com` | `password` | USER | Usuário comum |
+| `tecnico@teste.com` | `password` | TECNICO | Técnico de suporte |
 
 ---
 
-## 📝 **Exemplos de Uso**
+## 📡 API - Documentação
 
-### **1. Login**
+### Base URL
+
+```
+http://localhost:8000/api
+```
+
+### Autenticação
+
+Todas as rotas da API requerem autenticação via **Sanctum Token**.
+
+#### 1. Login (obter token)
 
 ```bash
-curl -X POST http://localhost:8000/api/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@teste.com",
-    "password": "password"
-  }'
+POST /login
+Content-Type: application/json
+
+{
+  "email": "admin@teste.com",
+  "password": "password"
+}
 ```
 
 **Resposta:**
 ```json
 {
   "user": {
-    "id": 2,
-    "name": "Usuário Comum",
-    "email": "user@teste.com"
+    "id": 1,
+    "name": "Administrador",
+    "email": "admin@teste.com"
   },
   "token": "1|abc123..."
 }
 ```
 
-### **2. Listar Tickets (com filtro)**
+#### 2. Usar o token nas requisições
 
 ```bash
-curl http://localhost:8000/api/tickets?status=ABERTO \
-  -H "Authorization: Bearer SEU_TOKEN"
+Authorization: Bearer {seu-token}
 ```
 
-### **3. Criar Ticket**
+---
 
+### 📋 Endpoints
+
+#### **GET /api/tickets**
+Lista todos os tickets (com filtros opcionais)
+
+**Query Parameters:**
+- `status` (opcional): `ABERTO`, `EM_ANDAMENTO`, `RESOLVIDO`
+- `prioridade` (opcional): `BAIXA`, `MEDIA`, `ALTA`
+- `search` (opcional): busca por título ou descrição
+
+**Exemplo:**
 ```bash
-curl -X POST http://localhost:8000/api/tickets \
-  -H "Authorization: Bearer SEU_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "titulo": "Problema no sistema",
-    "descricao": "Não consigo fazer login",
-    "prioridade": "ALTA"
-  }'
-```
-
-### **4. Mudar Status**
-
-```bash
-curl -X PATCH http://localhost:8000/api/tickets/1/status \
-  -H "Authorization: Bearer SEU_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"status": "EM_ANDAMENTO"}'
-```
-
-### **5. Atribuir Responsável**
-
-```bash
-curl -X PATCH http://localhost:8000/api/tickets/1/assign \
-  -H "Authorization: Bearer SEU_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"responsavel_id": 1}'
-```
-
-### **6. Ver Logs de Auditoria**
-
-```bash
-curl http://localhost:8000/api/tickets/1/logs \
-  -H "Authorization: Bearer SEU_TOKEN"
-```
-
-### **7. Dashboard**
-
-```bash
-curl http://localhost:8000/api/dashboard/tickets \
-  -H "Authorization: Bearer SEU_TOKEN"
+curl -X GET "http://localhost:8000/api/tickets?status=ABERTO&prioridade=ALTA" \
+  -H "Authorization: Bearer {token}" \
+  -H "Accept: application/json"
 ```
 
 **Resposta:**
 ```json
 {
-  "status_counts": {
-    "ABERTO": 5,
-    "EM_ANDAMENTO": 3,
-    "RESOLVIDO": 2,
-    "FECHADO": 1
-  },
-  "total": 11
+  "data": [
+    {
+      "id": 1,
+      "titulo": "Problema no sistema",
+      "descricao": "Sistema não está respondendo corretamente",
+      "status": "ABERTO",
+      "prioridade": "ALTA",
+      "solicitante": {
+        "id": 2,
+        "name": "Usuário Comum"
+      },
+      "responsavel": null,
+      "resolved_at": null,
+      "created_at": "2026-02-12T10:30:00.000000Z"
+    }
+  ]
 }
 ```
 
 ---
 
-## 🗂️ **Estrutura do Projeto**
+#### **GET /api/tickets/{id}**
+Detalha um ticket específico
 
-```
-ticket-flow/
-├── app/
-│   ├── Enums/
-│   │   ├── TicketStatus.php      # Enum de status
-│   │   └── TicketPriority.php    # Enum de prioridade
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── AuthController.php
-│   │   │   └── TicketController.php
-│   │   ├── Requests/
-│   │   │   ├── StoreTicketRequest.php
-│   │   │   └── UpdateTicketRequest.php
-│   │   └── Resources/
-│   │       └── TicketResource.php
-│   ├── Models/
-│   │   ├── User.php
-│   │   ├── Ticket.php
-│   │   └── AuditLog.php
-│   ├── Policies/
-│   │   └── TicketPolicy.php
-│   └── Services/
-│       └── TicketService.php
-├── database/
-│   ├── migrations/
-│   └── seeders/
-│       └── DatabaseSeeder.php
-├── routes/
-│   └── api.php
-├── tests/
-├── test_complete_api.sh           # Script de testes
-└── README.md
+**Exemplo:**
+```bash
+curl -X GET "http://localhost:8000/api/tickets/1" \
+  -H "Authorization: Bearer {token}" \
+  -H "Accept: application/json"
 ```
 
 ---
 
-## 🎯 **Diferenciais Implementados**
+#### **POST /api/tickets**
+Cria um novo ticket
 
-✅ **Arquitetura em camadas** (Controller → Service → Model)  
-✅ **Enums nativos do PHP** para status e prioridades  
-✅ **Soft Deletes** - dados nunca são perdidos  
-✅ **Auditoria completa** - rastreio de todas as mudanças  
-✅ **Policies** - autorização granular  
-✅ **Resources** - transformação de dados padronizada  
-✅ **Validações** - FormRequests separados  
-✅ **Documentação automática** - Swagger via Scramble  
-✅ **Filtros combinados** - múltiplos filtros simultaneamente  
-✅ **Timestamps automáticos** - `created_at`, `updated_at`, `resolved_at`  
-✅ **Relacionamentos eloquent** - usuários e tickets  
+**Body:**
+```json
+{
+  "titulo": "Computador não liga",
+  "descricao": "O computador da sala 10 não está ligando desde ontem",
+  "prioridade": "ALTA",
+  "responsavel_id": 3
+}
+```
+
+**Validações:**
+- `titulo`: obrigatório, 5-120 caracteres
+- `descricao`: obrigatório, mínimo 20 caracteres
+- `prioridade`: obrigatório, valores: BAIXA, MEDIA, ALTA
+- `responsavel_id`: opcional, deve existir na tabela users
+
+**Exemplo:**
+```bash
+curl -X POST "http://localhost:8000/api/tickets" \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "titulo": "Impressora com problema",
+    "descricao": "A impressora do segundo andar está com erro de papel",
+    "prioridade": "MEDIA"
+  }'
+```
+
+**Resposta (201):**
+```json
+{
+  "data": {
+    "id": 5,
+    "titulo": "Impressora com problema",
+    "status": "ABERTO",
+    "prioridade": "MEDIA",
+    "created_at": "2026-02-12T15:45:00.000000Z"
+  }
+}
+```
 
 ---
 
-## 🧑‍💻 **Desenvolvido por**
+#### **PATCH /api/tickets/{id}/status**
+Atualiza apenas o status do ticket (cria log de auditoria)
 
-Filipe M. Henrique
+**Body:**
+```json
+{
+  "status": "RESOLVIDO"
+}
+```
+
+**Validações:**
+- `status`: obrigatório, valores: ABERTO, EM_ANDAMENTO, RESOLVIDO
+
+**Exemplo:**
+```bash
+curl -X PATCH "http://localhost:8000/api/tickets/1/status" \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"status": "RESOLVIDO"}'
+```
+
+**Comportamento especial:**
+- Quando status = `RESOLVIDO`, o campo `resolved_at` é preenchido automaticamente
+- Cria registro na tabela `audit_logs` com detalhes da mudança
 
 ---
 
-## 📄 **Licença**
+#### **PUT /api/tickets/{id}**
+Atualiza um ticket completo
 
-MIT License
+**Body (todos campos opcionais):**
+```json
+{
+  "titulo": "Novo título",
+  "descricao": "Nova descrição com pelo menos 20 caracteres",
+  "status": "EM_ANDAMENTO",
+  "prioridade": "ALTA",
+  "responsavel_id": 3
+}
+```
+
+---
+
+#### **DELETE /api/tickets/{id}**
+Remove um ticket (soft delete)
+
+**Autorização:**
+- Apenas o solicitante (criador) ou usuário com role ADMIN pode deletar
+
+**Exemplo:**
+```bash
+curl -X DELETE "http://localhost:8000/api/tickets/1" \
+  -H "Authorization: Bearer {token}" \
+  -H "Accept: application/json"
+```
+
+**Resposta (200):**
+```json
+{
+  "message": "Ticket excluído com sucesso"
+}
+```
+
+---
+
+#### **GET /api/tickets/{id}/logs**
+Lista histórico de mudanças (auditoria) do ticket
+
+**Exemplo:**
+```bash
+curl -X GET "http://localhost:8000/api/tickets/1/logs" \
+  -H "Authorization: Bearer {token}" \
+  -H "Accept: application/json"
+```
+
+**Resposta:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "action": "updated",
+      "description": "Ticket #1 atualizado: status: 'ABERTO' → 'RESOLVIDO'",
+      "user": {
+        "id": 1,
+        "name": "Administrador"
+      },
+      "before": null,
+      "after": null,
+      "created_at": "2026-02-12T16:00:00.000000Z"
+    }
+  ]
+}
+```
+
+---
+
+#### **PATCH /api/tickets/{id}/assign**
+Atribui um responsável ao ticket (cria log de auditoria)
+
+**Body:**
+```json
+{
+  "responsavel_id": 3
+}
+```
+
+**Exemplo:**
+```bash
+curl -X PATCH "http://localhost:8000/api/tickets/1/assign" \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"responsavel_id": 3}'
+```
+
+---
+
+## ⚡ Funcionalidades
+
+### ✅ Requisitos Funcionais Implementados
+
+| Requisito | Status |
+|-----------|--------|
+| Login obrigatório | ✅ Middleware auth |
+| CRUD de tickets | ✅ Completo |
+| Filtros (status, prioridade, busca) | ✅ Implementado |
+| Soft Delete | ✅ Implementado |
+| Status → RESOLVIDO preenche `resolved_at` | ✅ Automático |
+| Apenas dono/admin pode deletar | ✅ Policy |
+| Auditoria de mudanças de status | ✅ Tabela audit_logs |
+| API REST com Sanctum | ✅ Protegida |
+| Validações server-side | ✅ Form Requests |
+| Migrations com índices | ✅ Otimizado |
+| Seeders (users + tickets) | ✅ Implementado |
+| Testes (mínimo 2) | ✅ 5 testes (Feature) |
+
+---
+---
+
+## 🎁 BÔNUS: Sistema de Notificações com Queue
+
+### ✅ Implementado
+
+Quando um ticket é marcado como **RESOLVIDO**, o sistema:
+
+1. 📧 **Envia email** para o solicitante
+2. 💾 **Registra notificação** no banco de dados
+3. ⚡ **Processa em background** usando Queue
+
+---
+
+### 📊 **Tabelas criadas**
+
+- `jobs` - Fila de processamento
+- `notifications` - Notificações enviadas
+
+---
+
+### 🔔 **Como funciona**
+
+**Fluxo:**
+
+```
+PATCH /api/tickets/{id}/status {"status": "RESOLVIDO"}
+          ↓
+   TicketService::changeStatus()
+          ↓
+   resolved_at = now()
+          ↓
+   Dispara: TicketResolvidoNotification
+          ↓
+   Job entra na Queue (database)
+          ↓
+   Worker processa: envia email + salva no DB
+```
+
+---
+
+### ⚙️ **Configuração**
+
+**1. Queue no .env:**
+
+```env
+QUEUE_CONNECTION=database
+MAIL_MAILER=log  # Em produção use smtp
+```
+
+**2. Rodar worker (em produção):**
+
+```bash
+php artisan queue:work
+```
+
+**3. Ver notificações de um usuário:**
+
+```php
+$user->notifications;  // Todas notificações
+$user->unreadNotifications;  // Apenas não lidas
+```
+
+---
+
+### 📧 **Exemplo de email enviado**
+
+```
+Assunto: Ticket #5 foi resolvido! 🎉
+
+Olá, João Silva!
+
+Seu ticket #5 - Impressora com problema foi marcado como RESOLVIDO.
+
+Descrição: A impressora do segundo andar está com erro de papel
+Prioridade: MEDIA
+Resolvido em: 12/02/2026 14:30
+
+[Ver Ticket]
+
+Obrigado por usar nosso sistema!
+```
+
+---
+
+### 🧪 **Testes implementados**
+
+```bash
+php artisan test --filter TicketNotification
+```
+
+- ✅ `notificacao e enviada quando ticket e resolvido`
+- ✅ `notificacao nao e enviada quando status nao e resolvido`
+
+---
+
+### 📌 **Tecnologias usadas**
+
+- Laravel Queues (database driver)
+- Laravel Notifications (mail + database channels)
+- Jobs assíncronos
+- ShouldQueue interface
+
+---
+
+## 🏗️ Arquitetura
+
+### Camadas da aplicação
+
+```
+┌─────────────────────────────────────────┐
+│         Controller (HTTP Layer)         │  ← Recebe requests
+│   - TicketController                    │
+│   - Validação (Form Requests)           │
+│   - Autorização (Policies)              │
+└─────────────────────────────────────────┘
+                   ↓
+┌─────────────────────────────────────────┐
+│      Service Layer (Business Logic)     │  ← Lógica de negócio
+│   - TicketService                       │
+│   - changeStatus()                      │
+│   - assignResponsible()                 │
+│   - Criação de audit logs               │
+└─────────────────────────────────────────┘
+                   ↓
+┌─────────────────────────────────────────┐
+│    Repository Layer (Data Access)       │  ← Acesso aos dados
+│   - TicketRepository                    │
+│   - Filtros e queries                   │
+└─────────────────────────────────────────┘
+                   ↓
+┌─────────────────────────────────────────┐
+│         Model (Eloquent ORM)            │  ← Dados
+│   - Ticket                              │
+│   - AuditLog                            │
+│   - User                                │
+└─────────────────────────────────────────┘
+```
+
+### Estrutura de diretórios
+
+```
+app/
+├── Enums/
+│   ├── TicketStatus.php
+│   └── TicketPriority.php
+├── Http/
+│   ├── Controllers/
+│   │   └── TicketController.php
+│   ├── Requests/
+│   │   ├── StoreTicketRequest.php
+│   │   └── UpdateTicketRequest.php
+│   └── Resources/
+│       └── TicketResource.php
+├── Models/
+│   ├── Ticket.php
+│   ├── AuditLog.php
+│   └── User.php
+├── Policies/
+│   └── TicketPolicy.php
+├── Repositories/
+│   ├── Contracts/
+│   │   └── TicketRepositoryInterface.php
+│   └── TicketRepository.php
+└── Services/
+    └── TicketService.php
+```
+
+---
+
+## 📊 Diagrama de Entidades
+
+```
+┌─────────────────┐         ┌─────────────────┐
+│     USERS       │         │    TICKETS      │
+├─────────────────┤         ├─────────────────┤
+│ id              │◄───┐    │ id              │
+│ name            │    │    │ titulo          │
+│ email           │    └────┤ solicitante_id  │
+│ password        │    ┌────┤ responsavel_id  │
+│ role            │◄───┘    │ status          │
+└─────────────────┘         │ prioridade      │
+                            │ descricao       │
+                            │ resolved_at     │
+                            │ deleted_at      │
+                            └─────────────────┘
+                                    │
+                                    │ 1:N
+                                    ▼
+                            ┌─────────────────┐
+                            │  AUDIT_LOGS     │
+                            ├─────────────────┤
+                            │ id              │
+                            │ auditable_type  │
+                            │ auditable_id    │
+                            │ user_id         │
+                            │ action          │
+                            │ description     │
+                            │ changes (JSON)  │
+                            └─────────────────┘
+```
+
+---
+
+## 🎨 Enums
+
+### TicketStatus
+
+- `ABERTO` - Status inicial (padrão)
+- `EM_ANDAMENTO` - Ticket sendo trabalhado
+- `RESOLVIDO` - Ticket finalizado
+
+### TicketPriority
+
+- `BAIXA` - Peso 1
+- `MEDIA` - Peso 2
+- `ALTA` - Peso 3
+
+---
+
+## 📝 Licença
+
+Este projeto foi desenvolvido como teste técnico.
+
+---
+
+## 👨‍💻 Desenvolvedor
+
+Desenvolvido com ❤️ usando Laravel e boas práticas de Clean Architecture.

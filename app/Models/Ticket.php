@@ -37,6 +37,13 @@ class Ticket extends Model
     ];
 
     /**
+     * Valores padrão para novos tickets
+     */
+    protected $attributes = [
+        'status' => 'ABERTO',
+    ];
+
+    /**
      * Relacionamento: Ticket pertence a um Solicitante (User)
      */
     public function solicitante(): BelongsTo
@@ -131,11 +138,12 @@ class Ticket extends Model
     {
         return $query->where('status', TicketStatus::RESOLVIDO->value);
     }
+
     /**
- * Logs de auditoria
- */
-public function logs(): HasMany
-{
-    return $this->hasMany(TicketLog::class)->orderBy('created_at', 'desc');
-}
+     * Logs de auditoria
+     */
+    public function logs(): HasMany
+    {
+        return $this->hasMany(TicketLog::class)->orderBy('created_at', 'desc');
+    }
 }

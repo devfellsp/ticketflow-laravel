@@ -2,26 +2,30 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
+use App\Enums\TicketStatus;
+use App\Enums\TicketPriority;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ticket>
- */
 class TicketFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-   public function definition(): array
-{
-    return [
-        'titulo' => fake()->sentence(4), // Gera um título aleatório
-        'descricao' => fake()->paragraph(3), // Gera uma descrição
-        'status' => 'ABERTO',
-        'prioridade' => fake()->randomElement(['BAIXA', 'MEDIA', 'ALTA']),
-        'solicitante_id' => \App\Models\User::factory(), // Cria um user se não for passado um
-    ];
-}       
+    public function definition(): array
+    {
+        $status = fake()->randomElement(['ABERTO', 'EM_ANDAMENTO', 'RESOLVIDO']);
+        // Pegar usuários existentes ou criar novos
+        $solicitante = User::inRandomOrder()->first() ?? User::factory()->create();
+        $responsavel = fake()->boolean(50) 
+            ? (User::inRandomOrder()->first() ?? User::factory()->create())
+            : null;
+        
+        return [
+            'titulo' => fake()->sentence(6),
+            'descricao' => fake()->paragraph(3),
+            'status' => $status,
+            'prioridade' => fake()->randomElement(['BAIXA', 'MEDIA', 'ALTA']),
+            'solicitante_id' => $solicitante->id,
+            'responsavel_id' => $responsavel?->id,
+            'resolved_at' => $status === 'RESOLVIDO' ? fake()->dateTimeBetween('-30 days', 'now') : null,
+        ];
+    }
 }

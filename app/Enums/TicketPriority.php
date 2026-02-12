@@ -7,18 +7,9 @@ enum TicketPriority: string
     case BAIXA = 'BAIXA';
     case MEDIA = 'MEDIA';
     case ALTA = 'ALTA';
-    case CRITICA = 'CRITICA';
 
     /**
-     * Retorna todos os valores possíveis
-     */
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'value');
-    }
-
-    /**
-     * Retorna label amigável
+     * Label humanizado
      */
     public function label(): string
     {
@@ -26,25 +17,23 @@ enum TicketPriority: string
             self::BAIXA => 'Baixa',
             self::MEDIA => 'Média',
             self::ALTA => 'Alta',
-            self::CRITICA => 'Crítica',
         };
     }
 
     /**
-     * Retorna cor para badge
+     * Cor para UI
      */
     public function color(): string
     {
         return match($this) {
-            self::BAIXA => 'gray',
-            self::MEDIA => 'blue',
-            self::ALTA => 'orange',
-            self::CRITICA => 'red',
+            self::BAIXA => 'green',
+            self::MEDIA => 'yellow',
+            self::ALTA => 'red',
         };
     }
 
     /**
-     * Retorna peso numérico (para ordenação)
+     * Peso para ordenação (maior = mais urgente)
      */
     public function weight(): int
     {
@@ -52,7 +41,6 @@ enum TicketPriority: string
             self::BAIXA => 1,
             self::MEDIA => 2,
             self::ALTA => 3,
-            self::CRITICA => 4,
         };
     }
 }
